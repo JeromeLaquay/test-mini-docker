@@ -1,0 +1,115 @@
+version: '3'
+services:
+  eureka-server:
+    build: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SERVER_PORT: 8761
+      EUREKA_CLIENT_REGISTER-WITH-EUREKA: "false"
+      EUREKA_CLIENT_FETCH-REGISTRY: "false"
+      EUREKA_INSTANCE_HOSTNAME: localhost
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+    networks:
+      - backend
+  users-service:
+    build: users-service
+    environment:
+      JWT_SECRET: o7XhS3kRpD9qFvN1bZcY8wA5mE2jL6tG0iU4xW7zQ8eP3yV1oB2nH6gJ9dK5sT
+      JWT_EXPIRATION: 86400000
+      SPRING_DATASOURCE_URL: jdbc:postgresql://jeroka_db:5432/jeroka_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: jeroka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - jeroka_db
+      - eureka-server
+    ports:
+      - "8081:8080"
+      - "5005:5005"
+    networks:
+      - backend
+  products-service:
+    build: ./products-service
+    ports:
+      - "8082:8080"
+    networks:
+      - backend
+    depends_on:
+      - jeroka_db
+  auth-service:
+    build: auth-service
+    environment:
+      JWT_SECRET: o7XhS3kRpD9qFvN1bZcY8wA5mE2jL6tG0iU4xW7zQ8eP3yV1oB2nH6gJ9dK5sT
+      JWT_EXPIRATION: 86400000
+      USERS_SERVICE_URL: http://users-service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    ports:
+      - "8083:8080"
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - users-service
+      - eureka-server
+  api-gateway:
+    build: api-gateway
+    ports:
+      - "8084:8080"
+      - "5006:5005"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: auth-service
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: lb://auth-service
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path=/auth/**
+      SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: user-service
+      SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: lb://user-service
+      SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path=/users/**
+      SPRING_CLOUD_GATEWAY_ROUTES[2]_ID: product-service
+      SPRING_CLOUD_GATEWAY_ROUTES[2]_URI: lb://product-service
+      SPRING_CLOUD_GATEWAY_ROUTES[2]_PREDICATES[0]: Path=/products/**
+      JWT_EXPIRATION: 86400000
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - auth-service
+      - users-service
+      - eureka-server
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    networks:
+      - frontend
+  jeroka_db:
+    image: postgres:15-alpine
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: jeroka
+      POSTGRES_DB: jeroka_db
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - users-service
+      - products-service
+      - auth-service
+      - api-gateway
+      - frontend
+    networks:
+      - backend
+      - frontend
+networks:
+  backend:
+    driver: bridge
+  frontend:
