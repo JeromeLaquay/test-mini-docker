@@ -1,27 +1,29 @@
+# Utiliser une image de base Node.js
 FROM node:lts-alpine
 
-# install simple http server for serving static content
-RUN npm install -g http-server
-
-# make the 'app' folder the current working directory
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# copy both 'package.json' and 'package-lock.json' (if available)
+# Copier les fichiers package.json et package-lock.json
 COPY package*.json ./
 
-# install project dependencies
-RUN npm install
+# Installer les dépendances
+RUN npm ci
 
-# copy project files and folders to the current working directory (i.e. 'app' folder)
+# Copier le reste des fichiers de l'application
 COPY . .
 
-# build app for production with minification
+# Construire l'application pour la production
 RUN npm run build
 
-EXPOSE 8080
-CMD [ "http-server", "dist" ]
+# Utiliser une image nginx pour servir l'application
+FROM nginx:stable-alpine
 
-FROM nginx:1.25-alpine as production-stage
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+# Copier les fichiers construits depuis l'étape précédente
+COPY --from=0 /app/dist /usr/share/nginx/html
+
+# Exposer le port 80
 EXPOSE 80
+
+# Démarrer nginx
 CMD ["nginx", "-g", "daemon off;"] 
