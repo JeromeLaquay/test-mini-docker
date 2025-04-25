@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const AUTH_API_URL = 'http://localhost:8084/api/auth/';
-const USERS_API_URL = 'http://localhost:8084/api/users/';
+const AUTH_API_URL = 'http://localhost:8081/api/auth/';
 
 // Configuration Axios avec plus d'options pour le debugging
 const axiosInstance = axios.create({
@@ -19,7 +18,7 @@ class AuthService {
   login(user) {
     console.log('Tentative de connexion pour l\'utilisateur:', user.username);
     return axiosInstance
-      .post(AUTH_API_URL + 'login', {
+      .post(AUTH_API_URL + 'signin', {
         username: user.username,
         password: user.password
       })
@@ -97,7 +96,7 @@ class AuthService {
   register(user) {
     console.log('Tentative d\'inscription pour:', user.username);
     return axiosInstance
-      .post(USERS_API_URL + 'register', {
+      .post(AUTH_API_URL + 'signup', {
         username: user.username,
         email: user.email,
         password: user.password

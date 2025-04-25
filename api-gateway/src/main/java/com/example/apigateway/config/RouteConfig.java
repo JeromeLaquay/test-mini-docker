@@ -10,14 +10,10 @@ public class RouteConfig {
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route(r -> r.path("/auth/**")
-                        .uri("lb://AUTH-SERVICE"))
-                .route(r -> r.path("/users/**")
-                        .uri("lb://USERS-SERVICE"))
-                .route(r -> r.path("/products/**")
-                        .uri("lb://PRODUCTS-SERVICE"))
-                .route(r -> r.path("/v2/api-docs", "/swagger-ui.html")
-                        .uri("http://localhost:8080"))
+                .route(r -> r.path("/api/auth/**")
+                        .uri("http://users-service:8081"))
+                .route(r -> r.path("/api/users/**")
+                        .uri("http://users-service:8081"))
                 .build();
     }
 } 

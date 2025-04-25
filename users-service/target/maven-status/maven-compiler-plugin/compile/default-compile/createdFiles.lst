@@ -1,7 +1,0 @@
-com\example\usersservice\repository\UserRepository.class
-com\example\usersservice\model\User.class
-com\example\usersservice\config\SecurityConfig.class
-com\example\usersservice\controller\UserController.class
-com\example\usersservice\model\Role.class
-com\example\usersservice\service\UserService.class
-com\example\usersservice\UsersServiceApplication.class
