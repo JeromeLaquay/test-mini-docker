@@ -19,6 +19,7 @@ public class SecurityConfig {
                 .pathMatchers("/api/auth/**").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .pathMatchers("/api/users/validate").permitAll()
+                .pathMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .anyExchange().authenticated()
             );
         

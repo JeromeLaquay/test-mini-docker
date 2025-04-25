@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
@@ -26,7 +26,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
         // Validate the user credentials
         ResponseEntity<Boolean> response = restTemplate.postForEntity(
-                "http://users-service/users/validate",
+                "http://users-service/api/users/validate",
                 authRequest,
                 Boolean.class
         );

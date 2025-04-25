@@ -3,6 +3,7 @@ package com.example.usersservice.controller;
 import com.example.usersservice.model.User;
 import com.example.usersservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,28 @@ public class UserController {
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userService.createUser(user);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            // Vérification basique des champs requis
+            if (user.getUsername() == null || user.getUsername().trim().isEmpty() ||
+                user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+                return ResponseEntity
+                    .badRequest()
+                    .body("Le nom d'utilisateur et le mot de passe sont requis");
+            }
+
+            User createdUser = userService.createUser(user);
+            return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                .badRequest()
+                .body("Erreur lors de l'inscription : " + e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")

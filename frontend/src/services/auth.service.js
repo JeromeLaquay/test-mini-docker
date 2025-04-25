@@ -1,13 +1,17 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8081/api/auth/';
+const AUTH_API_URL = 'http://localhost:8084/api/auth/';
+const USERS_API_URL = 'http://localhost:8084/api/users/';
 
-// Configuration Axios simplifiée pour éviter les erreurs CORS
+// Configuration Axios avec plus d'options pour le debugging
 const axiosInstance = axios.create({
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
+  },
+  validateStatus: status => {
+    return status >= 200 && status < 500; // Accepte tous les codes 2xx, 3xx et 4xx
   }
 });
 
@@ -15,7 +19,7 @@ class AuthService {
   login(user) {
     console.log('Tentative de connexion pour l\'utilisateur:', user.username);
     return axiosInstance
-      .post(API_URL + 'login', {
+      .post(AUTH_API_URL + 'login', {
         username: user.username,
         password: user.password
       })
@@ -32,37 +36,56 @@ class AuthService {
           return response.data;
         } else {
           console.warn('Réponse sans token:', response.data);
-          throw new Error('Réponse invalide du serveur');
+          throw new Error('Réponse invalide du serveur: token manquant');
         }
       })
       .catch(error => {
-        console.error('Détails de l\'erreur:', {
+        // Log détaillé de l'erreur
+        console.error('Erreur détaillée:', {
+          name: error.name,
           message: error.message,
+          stack: error.stack,
+          isAxiosError: error.isAxiosError,
           response: error.response ? {
             status: error.response.status,
             data: error.response.data,
             headers: error.response.headers
           } : 'Pas de réponse',
-          config: {
+          request: error.request ? {
+            method: error.request.method,
+            url: error.request.url,
+            headers: error.request.headers
+          } : 'Pas de requête',
+          config: error.config ? {
             url: error.config.url,
             method: error.config.method,
-            headers: error.config.headers
-          }
+            headers: error.config.headers,
+            timeout: error.config.timeout
+          } : 'Pas de config'
         });
 
         if (error.response) {
-          if (error.response.status === 401) {
-            throw new Error('Identifiants incorrects');
-          } else if (error.response.status === 500) {
-            if (error.response.data && error.response.data.message && 
-                error.response.data.message.includes('Query did not return a unique result')) {
-              console.error('Erreur de données multiples détectée');
-              throw new Error('Erreur technique: Plusieurs comptes détectés. Contactez l\'administrateur.');
-            }
-            throw new Error('Erreur serveur. Veuillez réessayer plus tard.');
+          // Erreur avec réponse du serveur
+          switch (error.response.status) {
+            case 401:
+              throw new Error('Identifiants incorrects');
+            case 404:
+              throw new Error('Service d\'authentification non disponible');
+            case 500:
+              throw new Error('Erreur serveur. Veuillez réessayer plus tard.');
+            default:
+              throw new Error(`Erreur ${error.response.status}: ${error.response.data.message || 'Erreur inconnue'}`);
           }
+        } else if (error.request) {
+          // Pas de réponse reçue
+          if (error.code === 'ECONNABORTED') {
+            throw new Error('La requête a pris trop de temps. Veuillez réessayer.');
+          }
+          throw new Error('Le serveur ne répond pas. Veuillez vérifier votre connexion et réessayer.');
+        } else {
+          // Erreur de configuration de la requête
+          throw new Error('Erreur de configuration de la requête: ' + error.message);
         }
-        throw new Error('Erreur de connexion. Veuillez vérifier votre connexion internet.');
       });
   }
 
@@ -74,14 +97,15 @@ class AuthService {
   register(user) {
     console.log('Tentative d\'inscription pour:', user.username);
     return axiosInstance
-      .post(API_URL + 'signup', {
+      .post(USERS_API_URL + 'register', {
         username: user.username,
         email: user.email,
         password: user.password
       })
       .then(response => {
         console.log('Inscription réussie:', response.data);
-        return response.data;
+        // Si l'inscription réussit, on connecte directement l'utilisateur
+        return this.login(user);
       })
       .catch(error => {
         console.error('Erreur d\'inscription:', {
@@ -94,13 +118,25 @@ class AuthService {
 
         if (error.response) {
           if (error.response.status === 400) {
-            throw new Error('Nom d\'utilisateur ou email déjà utilisé');
+            const errorMessage = error.response.data || 'Nom d\'utilisateur ou email déjà utilisé';
+            throw new Error(errorMessage);
           } else if (error.response.status === 500) {
             throw new Error('Erreur serveur. Veuillez réessayer plus tard.');
           }
         }
         throw new Error('Erreur lors de l\'inscription. Veuillez réessayer.');
       });
+  }
+
+  getCurrentUser() {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+    return JSON.parse(userStr);
+  }
+
+  isAuthenticated() {
+    const user = this.getCurrentUser();
+    return user !== null && user.token !== undefined;
   }
 }
 

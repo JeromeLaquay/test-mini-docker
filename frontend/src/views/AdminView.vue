@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import UserService from '../services/user2.service';
+
 
 export default {
   name: 'AdminView',
@@ -121,19 +121,19 @@ export default {
     };
   },
   mounted() {
-    UserService.getAdminBoard().then(
-      response => {
-        if (response.data) {
-          this.content = response.data;
-        }
-      },
-      error => {
-        this.content =
-          (error.response && error.response.data && error.response.data.message) ||
-          error.message ||
-          error.toString();
-      }
-    );
+//    UserService.getAdminBoard().then(
+//      response => {
+//        if (response.data) {
+//          this.content = response.data;
+//        }
+//      },
+//      error => {
+//        this.content =
+//          (error.response && error.response.data && error.response.data.message) ||
+//          error.message ||
+//          error.toString();
+//      }
+//    );
   }
 };
 </script>

@@ -1,0 +1,12 @@
+---
+description: 
+globs: *
+alwaysApply: false
+---
+Rule Name: auto attached
+Description:
+- Lorsque l'utilisateur pose une question, le modèle doit analyser automatiquement le contexte du projet (code, configuration, historique des échanges, etc.) pour identifier les informations pertinentes à attacher à sa réponse.
+- Le modèle doit sélectionner de manière autonome les extraits de code, les fichiers de configuration, les messages précédents ou toute autre donnée qui peut aider à comprendre et à répondre à la question de l'utilisateur.
+- Les informations attachées doivent être choisies de manière intelligente et ciblée, pour apporter un maximum de contexte utile sans noyer l'utilisateur sous une quantité excessive de détails.
+- Le modèle doit être capable de faire le lien entre la question de l'utilisateur et les éléments pertinents du projet, même si ceux-ci ne sont pas explicitement mentionnés dans la question.
+- L'objectif est de fournir proactivement à l'utilisateur toutes les données contextuelles dont il pourrait avoir besoin pour comprendre la réponse et prendre des décisions, sans qu'il ait à les demander explicitement.
