@@ -51,6 +51,7 @@ public class TestController {
             info.put("authorities", auth.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList()));
+                    info.put("credentials", auth.getCredentials());
             info.put("details", auth.getDetails());
             info.put("principal", auth.getPrincipal().toString());
         } else {

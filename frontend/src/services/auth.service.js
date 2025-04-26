@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const AUTH_API_URL = 'http://localhost:8081/api/auth/';
+const AUTH_API_URL = 'http://localhost:8082/api/auth/';
 
 // Configuration Axios avec plus d'options pour le debugging
 const axiosInstance = axios.create({

@@ -487,7 +487,7 @@ export default {
           backgroundImage: backgroundImage.value
         };
 
-        await store.dispatch('album/saveAlbumToStore', albumRequest);
+        await store.dispatch('album/saveAlbum', albumRequest);
         toast.success('Album sauvegardé avec succès !');
         
       } catch (err) {
@@ -501,7 +501,7 @@ export default {
 
     const loadSavedAlbum = async (albumId) => {
       try {
-        const albumData = await store.dispatch('album/getAlbum', albumId);
+        const albumData = await store.dispatch('album/fetchAlbumById', albumId);
         
         titleColor.value = albumData.titleColor;
         songColor.value = albumData.songColor;
@@ -673,7 +673,9 @@ export default {
     const loadUserAlbums = async () => {
       try {
         console.log("Chargement des albums de l'utilisateur...");
-        const albums = await store.dispatch('album/fetchUserAlbums');
+        const userId = store.state.auth.user.id;
+        console.log("ID de l'utilisateur:", userId);
+        const albums = await store.dispatch('album/fetchUserAlbums', userId);
         userAlbums.value = albums;
       } catch (err) {
         console.error('Erreur lors du chargement des albums:', err);

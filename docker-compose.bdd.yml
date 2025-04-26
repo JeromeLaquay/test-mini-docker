@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  jeroka_db:
+    image: postgres:15-alpine
+    container_name: jeroka_db
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: jeroka
+      POSTGRES_DB: jeroka_db
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

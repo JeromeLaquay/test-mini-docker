@@ -25,6 +25,18 @@ public class ApiGatewayApplication {
                                 .modifyResponseBody(String.class, String.class,
                                     (exchange, s) -> Mono.just("{\"message\":\"Auth Service is not available.\",\"status\":503}")))
                         .uri("http://auth-service:8081"))
+                .route("album_fallback_route", r -> r
+                        .path("/fallback/album")
+                        .filters(f -> f
+                                .modifyResponseBody(String.class, String.class,
+                                    (exchange, s) -> Mono.just("{\"message\":\"Album Service is not available.\",\"status\":503}")))
+                        .uri("http://album-service:8083"))
+                .route("subscription_fallback_route", r -> r
+                        .path("/fallback/subscription")
+                        .filters(f -> f
+                                .modifyResponseBody(String.class, String.class,
+                                    (exchange, s) -> Mono.just("{\"message\":\"Subscription Service is not available.\",\"status\":503}")))
+                        .uri("http://subscription-service:8084"))
                 .build();
     }
 } 
