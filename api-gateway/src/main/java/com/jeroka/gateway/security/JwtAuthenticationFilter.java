@@ -2,6 +2,7 @@ package com.jeroka.gateway.security;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -46,7 +47,7 @@ public class JwtAuthenticationFilter implements GatewayFilter {
     }
 
     private void validateToken(String token) throws JwtException, IllegalArgumentException {
-        Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes()).build().parseClaimsJws(token);
+        Jwts.parserBuilder().setSigningKey(Decoders.BASE64.decode(jwtSecret)).build().parseClaimsJws(token);
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {

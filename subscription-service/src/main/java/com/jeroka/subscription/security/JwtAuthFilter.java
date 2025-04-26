@@ -48,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         .collect(Collectors.toList());
                 
                 // Créer un objet Principal qui contient l'ID de l'utilisateur
-                JwtUserDetails principal = new JwtUserDetails(claims.getSubject(), claims.get("id", String.class));
+                JwtUserDetails principal = new JwtUserDetails(claims.getSubject(), claims.get("id", Long.class));
                 
                 // Créer et configurer l'authentification
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -88,9 +88,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
      */
     public static class JwtUserDetails {
         private final String username;
-        private final String id;
+        private final Long id;
 
-        public JwtUserDetails(String username, String id) {
+        public JwtUserDetails(String username, Long id) {
             this.username = username;
             this.id = id;
         }
@@ -99,7 +99,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return username;
         }
 
-        public String getId() {
+        public Long getId() {
             return id;
         }
     }
