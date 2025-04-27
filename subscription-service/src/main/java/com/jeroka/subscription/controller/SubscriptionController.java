@@ -17,6 +17,7 @@ import java.util.List;
 /**
  * Contrôleur REST pour la gestion des abonnements.
  */
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/subscriptions")
 public class SubscriptionController {

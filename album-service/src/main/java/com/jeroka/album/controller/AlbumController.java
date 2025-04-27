@@ -10,7 +10,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/albums")
 public class AlbumController {

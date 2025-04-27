@@ -99,7 +99,7 @@ export default {
     handleLogin() {
       this.loading = true;
       this.message = '';
-      this.$store.dispatch('auth/login', this.user).then(
+      this.$store.dispatch('auth/signin', this.user).then(
         () => {
           this.successful = true;
           this.message = 'Connexion réussie !';

@@ -1,6 +1,6 @@
 import axios from 'axios';
-
-const AUTH_API_URL = 'http://localhost:8082/api/auth/';
+import config from '../config';
+const AUTH_API_URL = config.API_URL + '/auth/'; 
 
 // Configuration Axios avec plus d'options pour le debugging
 const axiosInstance = axios.create({
@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
 });
 
 class AuthService {
-  login(user) {
+  signin(user) {
     console.log('Tentative de connexion pour l\'utilisateur:', user.username);
     return axiosInstance
       .post(AUTH_API_URL + 'signin', {
@@ -93,7 +93,7 @@ class AuthService {
     localStorage.removeItem('user');
   }
 
-  register(user) {
+  signup(user) {
     console.log('Tentative d\'inscription pour:', user.username);
     return axiosInstance
       .post(AUTH_API_URL + 'signup', {
@@ -104,7 +104,7 @@ class AuthService {
       .then(response => {
         console.log('Inscription réussie:', response.data);
         // Si l'inscription réussit, on connecte directement l'utilisateur
-        return this.login(user);
+        return this.signin(user);
       })
       .catch(error => {
         console.error('Erreur d\'inscription:', {

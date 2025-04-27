@@ -13,7 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/test")
 public class TestController {

@@ -101,7 +101,7 @@ export default {
     handleRegister() {
       this.loading = true;
       this.message = '';
-      this.$store.dispatch('auth/register', this.user).then(
+      this.$store.dispatch('auth/signup', this.user).then(
         () => {
           this.successful = true;
           this.message = 'Inscription réussie !';

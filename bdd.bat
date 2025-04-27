@@ -1,0 +1,1 @@
+docker-compose -f docker-compose.bdd.yml up -d

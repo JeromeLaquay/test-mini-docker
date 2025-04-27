@@ -12,8 +12,8 @@ const getters = {
 };
 
 const actions = {
-  login({ commit }, user) {
-    return AuthService.login(user).then(
+    signin({ commit }, user) {
+    return AuthService.signin(user).then(
       user => {
         console.log('Login réussi, données utilisateur reçues:', Object.keys(user));
         if (user.token) {
@@ -35,8 +35,8 @@ const actions = {
     AuthService.logout();
     commit('logout');
   },
-  register({ commit }, user) {
-    return AuthService.register(user).then(
+  signup({ commit }, user) {
+    return AuthService.signup(user).then(
       response => {
         commit('registerSuccess');
         return Promise.resolve(response.data);
