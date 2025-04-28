@@ -1,1 +1,2 @@
-docker compose --env-file .env.docker up --build
+docker compose --env-file .env.docker build --no-cache
+docker compose --env-file .env.docker up

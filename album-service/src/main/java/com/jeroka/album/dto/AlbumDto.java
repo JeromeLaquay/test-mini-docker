@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Objects;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Album DTO")
 public class AlbumDto {
     private UUID id;
     private String name;

@@ -1,6 +1,9 @@
 package com.jeroka.auth.dto;
 
-public class MessageResponse {
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Message response payload")
+    public class MessageResponse {
     private String message;
 
     public MessageResponse() {

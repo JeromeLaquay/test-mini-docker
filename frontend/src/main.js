@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from 'axios'
-import './assets/tailwind.css'
+import './assets/main.css'
 
 // Intercepteurs Axios pour le débogage
 axios.interceptors.request.use(
@@ -29,4 +29,4 @@ axios.interceptors.response.use(
   }
 );
 
-createApp(App).use(store).use(router).mount('#app') 
+createApp(App).use(store).use(router).mount('#app')

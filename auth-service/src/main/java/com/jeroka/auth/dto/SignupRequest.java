@@ -3,9 +3,11 @@ package com.jeroka.auth.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Set;
 
+@Schema(description = "Signup request payload")
 public class SignupRequest {
     @NotBlank
     @Size(min = 3, max = 20)

@@ -1,8 +1,10 @@
 package com.jeroka.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-public class LoginRequest {
+@Schema(description = "Login request payload")
+    public class LoginRequest {
     @NotBlank
     private String username;
 

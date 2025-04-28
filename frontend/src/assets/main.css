@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles globaux */
+body {
+  @apply bg-dark text-white font-sans;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-title;
+}
+
+/* Classes utilitaires personnalisées */
+.btn-primary {
+  @apply bg-primary text-white font-bold py-2 px-4 rounded-xl hover:bg-secondary transition;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white font-bold py-2 px-4 rounded-xl hover:bg-primary transition;
+}
+
+.card {
+  @apply bg-white/10 rounded-2xl shadow-lg p-6;
+} 
