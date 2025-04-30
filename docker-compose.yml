@@ -70,9 +70,6 @@ services:
     build: ./payment-service
     container_name: payment-service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://jeroka_db:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       SERVER_PORT: ${PAYMENT_SERVICE_PORT}
     depends_on:
@@ -101,14 +98,7 @@ services:
       ROUTE_AUTH_SERVICE: "${ROUTE_AUTH_SERVICE}"
       ROUTE_ALBUM_SERVICE: "${ROUTE_ALBUM_SERVICE}"
       ROUTE_PAYMENT_SERVICE: "${ROUTE_PAYMENT_SERVICE}"
-      SPRINGDOC_API_DOCS_URLS_0_NAME: album-service
-      SPRINGDOC_API_DOCS_URLS_0_URL: http://album-service:8083/v3/api-docs
-      SPRINGDOC_API_DOCS_URLS_1_NAME: auth-service
-      SPRINGDOC_API_DOCS_URLS_1_URL: http://auth-service:8081/v3/api-docs
-      SPRINGDOC_API_DOCS_URLS_2_NAME: subscription-service
-      SPRINGDOC_API_DOCS_URLS_2_URL: http://subscription-service:8084/v3/api-docs
-      SPRINGDOC_API_DOCS_URLS_3_NAME: payment-service
-      SPRINGDOC_API_DOCS_URLS_3_URL: http://payment-service:8085/v3/api-docs
+      ROUTE_INVOICE_SERVICE: "${ROUTE_INVOICE_SERVICE}"
     depends_on:
       - auth-service
       - album-service

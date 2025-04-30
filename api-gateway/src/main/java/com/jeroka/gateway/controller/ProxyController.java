@@ -22,6 +22,12 @@ public class ProxyController {
     @Value("${ROUTE_SUBSCRIPTION_SERVICE:http://localhost:8084}")
     private String subscriptionServiceUrl;
 
+    @Value("${ROUTE_INVOICE_SERVICE:http://localhost:8085}")
+    private String invoiceServiceUrl;
+
+    @Value("${ROUTE_PAYMENT_SERVICE:http://localhost:8086}")
+    private String paymentServiceUrl;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH, RequestMethod.OPTIONS})
@@ -41,6 +47,12 @@ public class ProxyController {
         } else if (path.startsWith("/api/subscriptions") || path.startsWith("/api/plans")) {
             System.out.println("Subscription service URL: " + subscriptionServiceUrl);
             return forward(request, body, subscriptionServiceUrl);
+        } else if (path.startsWith("/api/invoices")) {
+            System.out.println("Invoice service URL: " + invoiceServiceUrl);
+            return forward(request, body, invoiceServiceUrl);
+        } else if (path.startsWith("/api/payments")) {
+            System.out.println("Payment service URL: " + paymentServiceUrl);
+            return forward(request, body, paymentServiceUrl);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No route for " + path);
     }

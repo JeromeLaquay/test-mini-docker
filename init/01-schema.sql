@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS roles CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS subscription_plans CASCADE;
 DROP TABLE IF EXISTS subscriptions CASCADE;
+DROP TABLE IF EXISTS invoice_items CASCADE;
+DROP TABLE IF EXISTS invoices CASCADE;
 
 -- Création de la table des rôles
 CREATE TABLE roles (
@@ -95,6 +97,52 @@ CREATE TABLE subscriptions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Création de la table des factures
+CREATE TABLE invoices (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    invoice_number VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    order_id VARCHAR(50) NOT NULL,
+    order_date TIMESTAMP NOT NULL,
+    
+    customer_name VARCHAR(255) NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    customer_address TEXT NOT NULL,
+    
+    subtotal DECIMAL(10,2) NOT NULL,
+    tax_rate DECIMAL(4,2) NOT NULL,
+    tax_amount DECIMAL(10,2) NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    
+    CONSTRAINT check_amounts CHECK (
+        subtotal >= 0 AND
+        tax_rate >= 0 AND
+        tax_amount >= 0 AND
+        total >= 0
+    )
+);
+
+-- Création de la table des items de facture
+CREATE TABLE invoice_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    invoice_id UUID NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    quantity INTEGER NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    
+    CONSTRAINT fk_invoice
+        FOREIGN KEY (invoice_id)
+        REFERENCES invoices(id)
+        ON DELETE CASCADE,
+    
+    CONSTRAINT check_item_amounts CHECK (
+        unit_price >= 0 AND
+        quantity > 0 AND
+        total >= 0
+    )
+);
+
 -- Index pour améliorer les performances
 CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
 CREATE INDEX idx_user_roles_role_id ON user_roles(role_id);
@@ -102,6 +150,10 @@ CREATE INDEX idx_albums_user_id ON albums(user_id);
 CREATE INDEX idx_album_songs_album_id ON album_songs(album_id);
 CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
 CREATE INDEX idx_subscriptions_is_active ON subscriptions(is_active);
+CREATE INDEX idx_invoices_number ON invoices(invoice_number);
+CREATE INDEX idx_invoices_order ON invoices(order_id);
+CREATE INDEX idx_invoices_customer ON invoices(customer_email);
+CREATE INDEX idx_invoice_items_invoice ON invoice_items(invoice_id);
 
 -- Fonction pour mettre à jour automatiquement updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -131,6 +183,12 @@ CREATE TRIGGER update_subscription_plans_updated_at
 
 CREATE TRIGGER update_subscriptions_updated_at
     BEFORE UPDATE ON subscriptions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Trigger pour la mise à jour automatique de updated_at
+CREATE TRIGGER update_invoices_updated_at
+    BEFORE UPDATE ON invoices
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 

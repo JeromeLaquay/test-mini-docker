@@ -1,15 +1,22 @@
-package com.example.paymentservice.controller;
+package com.jeroka.paymentservice.controller;
 
+import com.jeroka.paymentservice.dto.PaymentRequestDTO;
+import com.jeroka.paymentservice.dto.PaymentResponseDTO;
+import com.jeroka.paymentservice.service.PaymentService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
-import org.springframework.web.bind.annotation.*;
-import java.util.*;
-import org.springframework.beans.factory.annotation.Value;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/payments")
+@RequiredArgsConstructor
 public class PaymentController {
 
     @Value("${PAYPAL_CLIENT_ID}")
@@ -25,6 +32,9 @@ public class PaymentController {
     private String routeFrontend;
 
     private final APIContext apiContext;
+
+    @Autowired
+    private final PaymentService paymentService;
 
     public PaymentController() {
         // Remplace par tes vraies credentials PayPal
@@ -73,6 +83,12 @@ public class PaymentController {
         Map<String, String> response = new HashMap<>();
         response.put("approval_url", approvalUrl);
         return response;
+    }
+
+    public ResponseEntity<PaymentResponseDTO> processPayPalPayment(
+            @Valid @RequestBody PaymentRequestDTO paymentRequest) {
+        PaymentResponseDTO response = paymentService.processPayment(paymentRequest);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/success")

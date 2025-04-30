@@ -57,4 +57,98 @@ VALUES
 -- Utilisateur 1 avec abonnement à vie
 (1, 'ONE_TIME', CURRENT_TIMESTAMP - INTERVAL '90 days', NULL, TRUE, FALSE, 299.99),
 -- Utilisateur 1 avec abonnement expiré
-(1, 'MONTHLY', CURRENT_TIMESTAMP - INTERVAL '60 days', CURRENT_TIMESTAMP - INTERVAL '30 days', FALSE, FALSE, 9.99); 
+(1, 'MONTHLY', CURRENT_TIMESTAMP - INTERVAL '60 days', CURRENT_TIMESTAMP - INTERVAL '30 days', FALSE, FALSE, 9.99);
+
+-- Insertion des factures de test
+INSERT INTO invoices (
+    id,
+    invoice_number,
+    created_at,
+    order_id,
+    order_date,
+    customer_name,
+    customer_email,
+    customer_address,
+    subtotal,
+    tax_rate,
+    tax_amount,
+    total
+) VALUES 
+-- Facture 1 : Abonnement mensuel
+(
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'INV-2024-001',
+    CURRENT_TIMESTAMP - INTERVAL '30 days',
+    'ORDER-2024-001',
+    CURRENT_TIMESTAMP - INTERVAL '30 days',
+    'John Doe',
+    'john.doe@example.com',
+    '123 Rue de la Paix, 75000 Paris',
+    9.99,  -- Prix de l'abonnement mensuel
+    20.00, -- TVA 20%
+    2.00,  -- Montant TVA
+    11.99  -- Total
+),
+-- Facture 2 : Abonnement annuel
+(
+    'f47ac10b-58cc-4372-a567-0e02b2c3d480',
+    'INV-2024-002',
+    CURRENT_TIMESTAMP - INTERVAL '15 days',
+    'ORDER-2024-002',
+    CURRENT_TIMESTAMP - INTERVAL '15 days',
+    'Jane Smith',
+    'jane.smith@example.com',
+    '456 Avenue des Champs-Élysées, 75008 Paris',
+    99.99, -- Prix de l'abonnement annuel
+    20.00, -- TVA 20%
+    20.00, -- Montant TVA
+    119.99 -- Total
+),
+-- Facture 3 : Abonnement à vie
+(
+    'f47ac10b-58cc-4372-a567-0e02b2c3d481',
+    'INV-2024-003',
+    CURRENT_TIMESTAMP - INTERVAL '7 days',
+    'ORDER-2024-003',
+    CURRENT_TIMESTAMP - INTERVAL '7 days',
+    'Alice Johnson',
+    'alice.johnson@example.com',
+    '789 Boulevard Haussmann, 75009 Paris',
+    299.99, -- Prix de l'abonnement à vie
+    20.00,  -- TVA 20%
+    60.00,  -- Montant TVA
+    359.99  -- Total
+);
+
+-- Insertion des items de facture
+INSERT INTO invoice_items (
+    invoice_id,
+    description,
+    unit_price,
+    quantity,
+    total
+) VALUES 
+-- Items pour la facture 1
+(
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'Abonnement Premium Mensuel',
+    9.99,
+    1,
+    9.99
+),
+-- Items pour la facture 2
+(
+    'f47ac10b-58cc-4372-a567-0e02b2c3d480',
+    'Abonnement Premium Annuel',
+    99.99,
+    1,
+    99.99
+),
+-- Items pour la facture 3
+(
+    'f47ac10b-58cc-4372-a567-0e02b2c3d481',
+    'Abonnement Premium à Vie',
+    299.99,
+    1,
+    299.99
+); 

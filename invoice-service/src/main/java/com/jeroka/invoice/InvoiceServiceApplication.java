@@ -1,11 +1,12 @@
-package com.example.paymentservice;
+package com.jeroka.invoice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PaymentServiceApplication {
+public class InvoiceServiceApplication {
+
     public static void main(String[] args) {
-        SpringApplication.run(PaymentServiceApplication.class, args);
+        SpringApplication.run(InvoiceServiceApplication.class, args);
     }
-} 
+}

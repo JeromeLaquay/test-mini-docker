@@ -13,14 +13,32 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @RestController
 public class AggregatedDocsController {
 
+    @Value("${ROUTE_INVOICE_SERVICE}")
+    private String routeInvoiceService;
+
+    @Value("${ROUTE_AUTH_SERVICE}")
+    private String routeAuthService;
+
+    @Value("${ROUTE_ALBUM_SERVICE}")
+    private String routeAlbumService;
+
+    @Value("${ROUTE_SUBSCRIPTION_SERVICE}")
+    private String routeSubscriptionService;
+
+    @Value("${ROUTE_PAYMENT_SERVICE}")
+    private String routePaymentService;
+    
+
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Liste des URLs des microservices à agréger
     private final List<String> docsUrls = Arrays.asList(
-        "http://auth-service:8081/v3/api-docs",
-        "http://album-service:8083/v3/api-docs",
-        "http://subscription-service:8084/v3/api-docs"
+        routeAuthService + "/v3/api-docs",
+        routeAlbumService + "/v3/api-docs",
+        routeSubscriptionService + "/v3/api-docs",
+        routeInvoiceService + "/v3/api-docs",
+        routePaymentService + "/v3/api-docs"
     );
 
     @GetMapping("/v3/aggregated-api-docs")
