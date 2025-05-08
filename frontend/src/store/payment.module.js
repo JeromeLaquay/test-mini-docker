@@ -1,76 +1,66 @@
-import PaymentService from '@/services/payment.service';
+import PaymentService from '../services/payment.service';
 
-const state = () => ({
-  paymentUrl: '',
-  paymentError: '',
-  paymentHistory: [],
-  paymentStatus: null // 'success' | 'cancel' | null
-});
-
-const mutations = {
-  SET_PAYMENT_URL(state, url) {
-    state.paymentUrl = url;
-  },
-  SET_PAYMENT_ERROR(state, error) {
-    state.paymentError = error;
-  },
-  SET_PAYMENT_HISTORY(state, history) {
-    state.paymentHistory = history;
-  },
-  SET_PAYMENT_STATUS(state, status) {
-    state.paymentStatus = status;
-  }
-};
-
-const actions = {
-  async payWithPaypal({ commit }, amount) {
-    commit('SET_PAYMENT_ERROR', '');
-    try {
-      const res = await PaymentService.payWithPaypal(amount);
-      commit('SET_PAYMENT_URL', res.data.approval_url);
-      return res.data.approval_url;
-    } catch (err) {
-      commit('SET_PAYMENT_ERROR', err.response?.data?.message || err.message);
-      throw err;
-    }
-  },
-  async fetchPaymentHistory({ commit }) {
-    try {
-      const res = await PaymentService.getPaymentHistory();
-      commit('SET_PAYMENT_HISTORY', res.data);
-    } catch (err) {
-      commit('SET_PAYMENT_ERROR', err.response?.data?.message || err.message);
-    }
-  },
-  async paymentSuccess({ commit }, { paymentId, payerId }) {
-    try {
-      await PaymentService.paymentSuccess(paymentId, payerId);
-      commit('SET_PAYMENT_STATUS', 'success');
-    } catch (err) {
-      commit('SET_PAYMENT_ERROR', err.response?.data?.message || err.message);
-    }
-  },
-  async paymentCancel({ commit }) {
-    try {
-      await PaymentService.paymentCancel();
-      commit('SET_PAYMENT_STATUS', 'cancel');
-    } catch (err) {
-      commit('SET_PAYMENT_ERROR', err.response?.data?.message || err.message);
-    }
-  }
-};
-
-const getters = {
-  paymentUrl: state => state.paymentUrl,
-  paymentError: state => state.paymentError,
-  paymentHistory: state => state.paymentHistory,
-  paymentStatus: state => state.paymentStatus
-};
-
-export default {
+const payment = {
   namespaced: true,
-  state,
-  mutations,
-  actions,
-  getters
-}; 
+  state: () => ({
+    paymentInfo: null,
+    paymentMethods: [],
+    savedMethods: [],
+    loading: false,
+    error: null,
+    processingPayment: false,
+    lastTransaction: null
+  }),
+  mutations: {
+    SET_PAYMENT_INFO(state, info) {
+      state.paymentInfo = info;
+    },
+    SET_PAYMENT_METHODS(state, methods) {
+      state.paymentMethods = methods;
+    },
+    SET_SAVED_METHODS(state, methods) {
+      state.savedMethods = methods;
+    },
+    SET_LOADING(state, status) {
+      state.loading = status;
+    },
+    SET_ERROR(state, error) {
+      state.error = error;
+    },
+    SET_PROCESSING_PAYMENT(state, status) {
+      state.processingPayment = status;
+    },
+    SET_LAST_TRANSACTION(state, transaction) {
+      state.lastTransaction = transaction;
+    },
+    CLEAR_ERROR(state) {
+      state.error = null;
+    }
+  },
+  actions: {
+    async payByCard({ commit }, paymentData) {
+      commit('SET_LOADING', true);
+      commit('CLEAR_ERROR');
+      commit('SET_PROCESSING_PAYMENT', true);
+      try {
+        const response = await PaymentService.payByCard(paymentData);
+        commit('SET_LAST_TRANSACTION', response.data);
+        return response.data;
+      } catch (error) {
+        commit('SET_ERROR', error.response?.data?.message || 'Erreur lors du paiement');
+      
+    }
+  },
+  getters: {
+    paymentInfo: state => state.paymentInfo,
+    paymentMethods: state => state.paymentMethods,
+    savedMethods: state => state.savedMethods,
+    loading: state => state.loading,
+    error: state => state.error,
+    processingPayment: state => state.processingPayment,
+    lastTransaction: state => state.lastTransaction,
+    hasError: state => !!state.error
+  }
+};
+
+export default payment; 

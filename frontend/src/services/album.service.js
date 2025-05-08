@@ -1,32 +1,29 @@
-import axios from 'axios';
-import authHeader from './auth-header';
-
-const API_URL = 'http://localhost:8082/api/albums';
+import api from './api';
 
 class AlbumService {
-  getAllAlbums() {
-    return axios.get(API_URL + '/all', { headers: authHeader() });
+  async getAll() {
+    return api.get(`/api/albums`);
   }
 
-  getAlbumById(id) {
-    return axios.get(API_URL + `/${id}`, { headers: authHeader() });
+  async get(id) {
+    return api.get(`/api/albums/${id}`);
   }
 
   createAlbum(album) {
-    return axios.post(API_URL, album, { headers: authHeader() });
+    return api.post(`/api/albums`, album);
   }
 
   updateAlbum(id, album) {
-    return axios.put(API_URL + `/${id}`, album, { headers: authHeader() });
+    return api.put(`/api/albums/${id}`, album);
   }
 
   deleteAlbum(id) {
-    return axios.delete(API_URL + `/${id}`, { headers: authHeader() });
+    return api.delete(`/api/albums/${id}`);
   }
 
   getAlbumsByUserId(userId) {
     console.log("Appel de getAlbumsByUserId avec userId:", userId);
-    return axios.get(API_URL + `/user/${userId}`, { headers: authHeader() });
+    return api.get(`/api/albums/user/${userId}`);
   }
 }
 

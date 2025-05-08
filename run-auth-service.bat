@@ -36,7 +36,7 @@ set JWT_EXPIRATION=%JWT_EXPIRATION%
 
 echo.
 echo 5. Nettoyage du service...
-cd auth-service
+cd back-service
 call mvn clean
 
 echo.

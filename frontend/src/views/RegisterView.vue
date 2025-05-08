@@ -22,6 +22,7 @@
                 required
                 class="appearance-none relative block w-full px-3 py-2 border border-white/20 bg-black/40 placeholder-white/50 text-white rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
                 placeholder="Nom d'utilisateur"
+                :disabled="isLoading"
               />
             </div>
             <div>
@@ -33,6 +34,7 @@
                 required
                 class="appearance-none relative block w-full px-3 py-2 border border-white/20 bg-black/40 placeholder-white/50 text-white rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
                 placeholder="Email"
+                :disabled="isLoading"
               />
             </div>
             <div>
@@ -44,6 +46,7 @@
                 required
                 class="appearance-none relative block w-full px-3 py-2 border border-white/20 bg-black/40 placeholder-white/50 text-white rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
                 placeholder="Mot de passe"
+                :disabled="isLoading"
               />
             </div>
           </div>
@@ -52,17 +55,17 @@
             <button
               type="submit"
               class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
-              :disabled="loading"
+              :disabled="isLoading"
             >
               <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                <span class="mr-2">{{ loading ? '⏳' : '✨' }}</span>
+                <span class="mr-2">{{ isLoading ? '⏳' : '✨' }}</span>
               </span>
-              {{ loading ? 'Inscription en cours...' : 'S\'inscrire' }}
+              {{ isLoading ? 'Inscription en cours...' : 'S\'inscrire' }}
             </button>
           </div>
 
-          <div v-if="message" class="mt-4 p-4 rounded-md" :class="successful ? 'bg-green-500/20 text-green-200 border border-green-500/30' : 'bg-red-500/20 text-red-200 border border-red-500/30'">
-            {{ message }}
+          <div v-if="authError" class="mt-4 p-4 rounded-md bg-red-500/20 text-red-200 border border-red-500/30">
+            {{ authError }}
           </div>
 
           <div class="text-center mt-4">
@@ -83,6 +86,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   name: 'RegisterView',
   data() {
@@ -91,31 +96,27 @@ export default {
         username: '',
         email: '',
         password: ''
-      },
-      loading: false,
-      message: '',
-      successful: false
+      }
     };
   },
+  computed: {
+    ...mapGetters('auth', ['loading', 'error']),
+    isLoading() {
+      return this.loading;
+    },
+    authError() {
+      return this.error;
+    }
+  },
   methods: {
-    handleRegister() {
-      this.loading = true;
-      this.message = '';
-      this.$store.dispatch('auth/signup', this.user).then(
-        () => {
-          this.successful = true;
-          this.message = 'Inscription réussie !';
-          this.$router.push('/login');
-        },
-        error => {
-          this.successful = false;
-          this.message = (error.response && error.response.data && error.response.data.message) ||
-            error.message ||
-            error.toString();
-        }
-      ).finally(() => {
-        this.loading = false;
-      });
+    async handleRegister() {
+      try {
+        await this.$store.dispatch('auth/signup', this.user);
+        this.$router.push('/login');
+      } catch (error) {
+        // L'erreur est déjà gérée dans le store
+        console.error('Erreur d\'inscription:', error);
+      }
     }
   }
 };

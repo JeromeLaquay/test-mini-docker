@@ -1,95 +1,57 @@
 import AlbumService from '../services/album.service';
 
-export const album = {
+const album = {
   namespaced: true,
-  state: {
+  state: () => ({
     albums: [],
-    selectedAlbum: null
-  },
-  getters: {
-    albums: state => state.albums,
-    selectedAlbum: state => state.selectedAlbum
-  },
+    currentAlbum: null,
+    loading: false,
+    error: null
+  }),
   mutations: {
-    SET_ALBUMS: (state, albums) => {
+    SET_ALBUMS(state, albums) {
       state.albums = albums;
     },
-    SET_SELECTED_ALBUM: (state, album) => {
-      state.selectedAlbum = album;
+    SET_CURRENT_ALBUM(state, album) {
+      state.currentAlbum = album;
     },
-    ADD_ALBUM: (state, album) => {
-      state.albums.push(album);
+    SET_LOADING(state, status) {
+      state.loading = status;
     },
-    UPDATE_ALBUM: (state, updatedAlbum) => {
-      const index = state.albums.findIndex(album => album.id === updatedAlbum.id);
-      if (index !== -1) {
-        state.albums.splice(index, 1, updatedAlbum);
-      }
-    },
-    REMOVE_ALBUM: (state, albumId) => {
-      state.albums = state.albums.filter(album => album.id !== albumId);
+    SET_ERROR(state, error) {
+      state.error = error;
     }
   },
   actions: {
-    fetchAlbums({ commit }) {
-      return AlbumService.getAllAlbums()
-        .then(response => {
-          commit('SET_ALBUMS', response.data);
-          return Promise.resolve(response.data);
-        })
-        .catch(error => {
-          return Promise.reject(error);
-        });
+    async fetchAlbums({ commit }) {
+      commit('SET_LOADING', true);
+      try {
+        const response = await AlbumService.getAll();
+        commit('SET_ALBUMS', response.data);
+      } catch (error) {
+        commit('SET_ERROR', error.response?.data?.message || 'Erreur lors de la récupération des albums');
+      } finally {
+        commit('SET_LOADING', false);
+      }
     },
-    fetchAlbumById({ commit }, albumId) {
-      return AlbumService.getAlbumById(albumId)
-        .then(response => {
-          commit('SET_SELECTED_ALBUM', response.data);
-          return Promise.resolve(response.data);
-        })
-        .catch(error => {
-          return Promise.reject(error);
-        });
-    },
-    saveAlbum({ commit }, album) {
-      return AlbumService.createAlbum(album)
-        .then(response => {
-          commit('ADD_ALBUM', response.data);
-          return Promise.resolve(response.data);
-        })
-        .catch(error => {
-          return Promise.reject(error);
-        });
-    },
-    updateAlbum({ commit }, { id, album }) {
-      return AlbumService.updateAlbum(id, album)
-        .then(response => {
-          commit('UPDATE_ALBUM', response.data);
-          return Promise.resolve(response.data);
-        })
-        .catch(error => {
-          return Promise.reject(error);
-        });
-    },
-    deleteAlbum({ commit }, albumId) {
-      return AlbumService.deleteAlbum(albumId)
-        .then(() => {
-          commit('REMOVE_ALBUM', albumId);
-          return Promise.resolve();
-        })
-        .catch(error => {
-          return Promise.reject(error);
-        });
-    },
-    fetchUserAlbums({ commit }, userId) {
-      return AlbumService.getAlbumsByUserId(userId)
-        .then(response => {
-          commit('SET_ALBUMS', response.data);
-          return Promise.resolve(response.data);
-        })
-        .catch(error => {
-          return Promise.reject(error);
-        });
+    async fetchAlbum({ commit }, id) {
+      commit('SET_LOADING', true);
+      try {
+        const response = await AlbumService.get(id);
+        commit('SET_CURRENT_ALBUM', response.data);
+      } catch (error) {
+        commit('SET_ERROR', error.response?.data?.message || 'Erreur lors de la récupération de l\'album');
+      } finally {
+        commit('SET_LOADING', false);
+      }
     }
+  },
+  getters: {
+    allAlbums: state => state.albums,
+    currentAlbum: state => state.currentAlbum,
+    loading: state => state.loading,
+    error: state => state.error
   }
-}; 
+};
+
+export default album; 

@@ -1,33 +1,21 @@
 export default function authHeader() {
   try {
-    let userStr = localStorage.getItem('user');
-    if (!userStr) {
-      return {
-        'Content-Type': 'application/json'
-      };
+    const user = JSON.parse(localStorage.getItem('user'));
+    const token = user?.token || user?.accessToken;
+
+    if (!token) {
+      console.warn('No authentication token found');
+      return {};
     }
 
-    let user = JSON.parse(userStr);
-    
-    if (user && user.token) {
-      return { 
-        'Authorization': 'Bearer ' + user.token,
-        'Content-Type': 'application/json'
-      };
-    } else if (user && user.accessToken) {
-      return { 
-        'Authorization': 'Bearer ' + user.accessToken,
-        'Content-Type': 'application/json'
-      };
-    } else {
-      return {
-        'Content-Type': 'application/json'
-      };
-    }
-  } catch (error) {
-    console.error('Erreur dans authHeader:', error);
     return {
-      'Content-Type': 'application/json'
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
     };
+  } catch (error) {
+    console.error('Error parsing user from localStorage:', error);
+    return {};
   }
 } 

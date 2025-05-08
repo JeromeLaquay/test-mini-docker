@@ -13,6 +13,9 @@
         <router-link to="/albums" class="text-gray-300 hover:text-white flex items-center space-x-2" active-class="text-blue-400">
           <span>Albums</span>
         </router-link>
+        <router-link to="/plans" class="text-gray-300 hover:text-white flex items-center space-x-2" active-class="text-blue-400">
+          <span>Plans</span>
+        </router-link>
         <router-link to="/subscriptions" class="text-gray-300 hover:text-white flex items-center space-x-2" active-class="text-blue-400">
           <span>Abonnements</span>
         </router-link>

@@ -1,1 +1,1 @@
-docker-compose -f docker-compose.bdd.yml up -d
+docker-compose -f docker-compose.bdd.yml up -d --remove-orphans

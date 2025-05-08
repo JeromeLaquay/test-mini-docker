@@ -1,17 +1,3 @@
--- Arrêt forcé du script si une erreur survient
-\set ON_ERROR_STOP true
-
--- Suppression des tables existantes (si nécessaires)
-DROP TABLE IF EXISTS album_songs CASCADE;
-DROP TABLE IF EXISTS albums CASCADE;
-DROP TABLE IF EXISTS user_roles CASCADE;
-DROP TABLE IF EXISTS roles CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS subscription_plans CASCADE;
-DROP TABLE IF EXISTS subscriptions CASCADE;
-DROP TABLE IF EXISTS invoice_items CASCADE;
-DROP TABLE IF EXISTS invoices CASCADE;
-
 -- Création de la table des rôles
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
@@ -21,11 +7,18 @@ CREATE TABLE roles (
 -- Création de la table des utilisateurs
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    username VARCHAR(20) NOT NULL UNIQUE,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(120) NOT NULL,
+    nom VARCHAR(100),
+    prenom VARCHAR(100),
+    telephone VARCHAR(20),
+    adresse TEXT,
+    code_postal VARCHAR(10),
+    ville VARCHAR(100),
+    pays VARCHAR(100),
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_mise_a_jour TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Création de la table de relation entre utilisateurs et rôles
@@ -37,158 +30,147 @@ CREATE TABLE user_roles (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
--- Création de la table des albums (adaptée selon Album.java)
-CREATE TABLE albums (
-    id UUID PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    user_id VARCHAR(50) NOT NULL,
-    background_image TEXT,
-    title_color VARCHAR(7),
-    song_color VARCHAR(7),
-    title_background_opacity INTEGER,
-    songs_background_opacity INTEGER,
-    background_image_opacity INTEGER,
-    overlay_opacity INTEGER,
-    overlay_color VARCHAR(7),
-    title_alignment VARCHAR(10),
-    songs_alignment VARCHAR(10),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Création de la table des chansons d'album (adaptée selon Album.java)
-CREATE TABLE album_songs (
-    album_id UUID NOT NULL,
-    song_name VARCHAR(255) NOT NULL,
-    FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE
-);
-
--- Création de la table des plans d'abonnement
-CREATE TABLE subscription_plans (
+-- Table plans
+CREATE TABLE plans (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    nom VARCHAR(100) NOT NULL,
     description TEXT,
-    type VARCHAR(20) NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    duration_months INTEGER,
-    features TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT check_subscription_type CHECK (type IN ('FREE', 'MONTHLY', 'YEARLY', 'ONE_TIME')),
-    CONSTRAINT check_price CHECK (price >= 0)
+    prix_mensuel DECIMAL(10,2) NOT NULL,
+    prix_annuel DECIMAL(10,2),
+    periode_essai_jours INTEGER DEFAULT 0,
+    actif BOOLEAN NOT NULL DEFAULT TRUE,
+    date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    date_mise_a_jour TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- Création de la table des abonnements utilisateurs
-CREATE TABLE subscriptions (
+-- Table méthodes de paiement
+CREATE TABLE methodes_paiement (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    type VARCHAR(20) NOT NULL,
-    start_date TIMESTAMP NOT NULL,
-    end_date TIMESTAMP,
-    is_active BOOLEAN DEFAULT TRUE,
-    auto_renew BOOLEAN DEFAULT FALSE,
-    price DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT check_subscription_type CHECK (type IN ('FREE', 'MONTHLY', 'YEARLY', 'ONE_TIME')),
-    CONSTRAINT check_dates CHECK (end_date IS NULL OR end_date > start_date),
-    CONSTRAINT check_price CHECK (price >= 0),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(20) NOT NULL CHECK (type IN ('CARTE', 'PAYPAL')),
+    token VARCHAR(255) NOT NULL,
+    identifiant_externe VARCHAR(255),
+    derniers_chiffres VARCHAR(4),
+    date_expiration DATE,
+    marque VARCHAR(50),
+    nom_titulaire VARCHAR(255),
+    par_defaut BOOLEAN NOT NULL DEFAULT FALSE,
+    date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    date_mise_a_jour TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- Création de la table des factures
-CREATE TABLE invoices (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    invoice_number VARCHAR(50) NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    order_id VARCHAR(50) NOT NULL,
-    order_date TIMESTAMP NOT NULL,
-    
-    customer_name VARCHAR(255) NOT NULL,
-    customer_email VARCHAR(255) NOT NULL,
-    customer_address TEXT NOT NULL,
-    
-    subtotal DECIMAL(10,2) NOT NULL,
-    tax_rate DECIMAL(4,2) NOT NULL,
-    tax_amount DECIMAL(10,2) NOT NULL,
-    total DECIMAL(10,2) NOT NULL,
-    
-    CONSTRAINT check_amounts CHECK (
-        subtotal >= 0 AND
-        tax_rate >= 0 AND
-        tax_amount >= 0 AND
-        total >= 0
-    )
-);
-
--- Création de la table des items de facture
-CREATE TABLE invoice_items (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    invoice_id UUID NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    unit_price DECIMAL(10,2) NOT NULL,
-    quantity INTEGER NOT NULL,
-    total DECIMAL(10,2) NOT NULL,
-    
-    CONSTRAINT fk_invoice
-        FOREIGN KEY (invoice_id)
-        REFERENCES invoices(id)
-        ON DELETE CASCADE,
-    
-    CONSTRAINT check_item_amounts CHECK (
-        unit_price >= 0 AND
-        quantity > 0 AND
-        total >= 0
-    )
-);
-
--- Index pour améliorer les performances
-CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
-CREATE INDEX idx_user_roles_role_id ON user_roles(role_id);
-CREATE INDEX idx_albums_user_id ON albums(user_id);
-CREATE INDEX idx_album_songs_album_id ON album_songs(album_id);
-CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
-CREATE INDEX idx_subscriptions_is_active ON subscriptions(is_active);
-CREATE INDEX idx_invoices_number ON invoices(invoice_number);
-CREATE INDEX idx_invoices_order ON invoices(order_id);
-CREATE INDEX idx_invoices_customer ON invoices(customer_email);
-CREATE INDEX idx_invoice_items_invoice ON invoice_items(invoice_id);
-
--- Fonction pour mettre à jour automatiquement updated_at
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+-- Trigger pour garantir qu'un client n'a qu'une seule méthode de paiement par défaut
+CREATE OR REPLACE FUNCTION verifier_methode_paiement_par_defaut()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
+    IF NEW.par_defaut = TRUE THEN
+        UPDATE methodes_paiement 
+        SET par_defaut = FALSE 
+        WHERE user_id = NEW.user_id 
+        AND id != NEW.id;
+    END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE 'plpgsql';
-
--- Triggers pour mettre à jour automatiquement updated_at
-CREATE TRIGGER update_users_updated_at
-    BEFORE UPDATE ON users
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_albums_updated_at
-    BEFORE UPDATE ON albums
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Triggers pour mettre à jour automatiquement updated_at sur les tables d'abonnement
-CREATE TRIGGER update_subscription_plans_updated_at
-    BEFORE UPDATE ON subscription_plans
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_subscriptions_updated_at
-    BEFORE UPDATE ON subscriptions
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Trigger pour la mise à jour automatique de updated_at
-CREATE TRIGGER update_invoices_updated_at
-    BEFORE UPDATE ON invoices
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER trigger_methode_paiement_par_defaut
+BEFORE INSERT OR UPDATE ON methodes_paiement
+FOR EACH ROW
+EXECUTE FUNCTION verifier_methode_paiement_par_defaut();
+-- Table abonnements
+CREATE TABLE abonnements (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    plan_id INTEGER NOT NULL REFERENCES plans(id),
+    methode_paiement_id INTEGER REFERENCES methodes_paiement(id),
+    statut VARCHAR(20) NOT NULL CHECK (statut IN ('ACTIF', 'ESSAI', 'SUSPENDU', 'ANNULE', 'EXPIRE')),
+    periode VARCHAR(10) NOT NULL CHECK (periode IN ('MENSUEL', 'ANNUEL')),
+    date_debut TIMESTAMP NOT NULL,
+    date_fin_essai TIMESTAMP,
+    date_prochaine_facturation TIMESTAMP,
+    date_fin TIMESTAMP,
+    montant DECIMAL(10,2) NOT NULL,
+    auto_renouvellement BOOLEAN NOT NULL DEFAULT TRUE,
+    raison_annulation TEXT,
+    date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    date_mise_a_jour TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- Table transactions
+CREATE TABLE transactions (
+    id SERIAL PRIMARY KEY,
+    abonnement_id INTEGER REFERENCES abonnements(id),
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    methode_paiement_id INTEGER REFERENCES methodes_paiement(id),
+    reference VARCHAR(100) NOT NULL UNIQUE,
+    type VARCHAR(20) NOT NULL CHECK (type IN ('PAIEMENT', 'REMBOURSEMENT', 'ECHEC', 'TEST')),
+    montant DECIMAL(10,2) NOT NULL,
+    devise VARCHAR(3) NOT NULL DEFAULT 'EUR',
+    statut VARCHAR(20) NOT NULL CHECK (statut IN ('EN_ATTENTE', 'REUSSIE', 'ECHOUEE', 'REMBOURSEE', 'ANNULEE')),
+    prestataire VARCHAR(50) NOT NULL,
+    identifiant_externe VARCHAR(255),
+    description TEXT,
+    metadata JSONB,
+    code_erreur VARCHAR(100),
+    message_erreur TEXT,
+    date_transaction TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+-- Table factures
+CREATE TABLE factures (
+    id SERIAL PRIMARY KEY,
+    transaction_id INTEGER NOT NULL REFERENCES transactions(id),
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    numero VARCHAR(50) NOT NULL UNIQUE,
+    date_emission DATE NOT NULL,
+    date_paiement DATE,
+    montant_ht DECIMAL(10,2) NOT NULL,
+    taux_tva DECIMAL(5,2) NOT NULL,
+    montant_tva DECIMAL(10,2) NOT NULL,
+    montant_ttc DECIMAL(10,2) NOT NULL,
+    statut VARCHAR(20) NOT NULL CHECK (statut IN ('EMISE', 'EN_ATTENTE', 'PAYEE', 'ANNULEE', 'REMBOURSEE')),
+    url_pdf VARCHAR(255),
+    notes TEXT,
+    date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+-- Table historique des activités (pour l'audit)
+CREATE TABLE historique_activites (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    type_entite VARCHAR(50) NOT NULL,
+    id_entite INTEGER NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    details JSONB,
+    adresse_ip VARCHAR(45),
+    user_agent TEXT,
+    date_action TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+-- Index pour améliorer les performances
+CREATE INDEX idx_abonnements_user_id ON abonnements(user_id);
+CREATE INDEX idx_abonnements_statut ON abonnements(statut);
+CREATE INDEX idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX idx_transactions_date ON transactions(date_transaction);
+CREATE INDEX idx_transactions_statut ON transactions(statut);
+CREATE INDEX idx_factures_user_id ON factures(user_id);
+CREATE INDEX idx_methodes_paiement_user_id ON methodes_paiement(user_id);
+-- Fonction pour mettre à jour automatiquement le timestamp de mise à jour
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+   NEW.date_mise_a_jour = CURRENT_TIMESTAMP;
+   RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- Triggers pour la mise à jour automatique des timestamps
+CREATE TRIGGER update_users_modtime
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+CREATE TRIGGER update_plans_modtime
+BEFORE UPDATE ON plans
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+CREATE TRIGGER update_methodes_paiement_modtime
+BEFORE UPDATE ON methodes_paiement
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+CREATE TRIGGER update_abonnements_modtime
+BEFORE UPDATE ON abonnements
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
 

@@ -1,24 +1,10 @@
-import axios from 'axios';
-
-const API_URL = '/api/payments';
+import api from './api';
 
 class PaymentService {
-  payWithPaypal(amount) {
-    return axios.post(`${API_URL}/paypal`, null, { params: { amount } });
-  }
 
-  getPaymentHistory() {
-    return axios.get(`${API_URL}/history`);
-  }
-
-  // Ces méthodes sont pour la redirection/callback, elles peuvent être utilisées si besoin
-  paymentSuccess(paymentId, payerId) {
-    return axios.get(`${API_URL}/success`, { params: { paymentId, PayerID: payerId } });
-  }
-
-  paymentCancel() {
-    return axios.get(`${API_URL}/cancel`);
+  payByCard(paymentData) {
+    return api.post('/api/payment/pay-by-card', paymentData);
   }
 }
 
-export default new PaymentService(); 
+export default new PaymentService();

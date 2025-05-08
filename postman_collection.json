@@ -1,0 +1,391 @@
+{
+	"info": {
+		"_postman_id": "1234-5678-abcd-efgh",
+		"name": "JeroKa API",
+		"description": "Collection des endpoints de l'API JeroKa",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"user123\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/signin",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "auth", "signin"]
+						}
+					}
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"newuser\",\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\",\n    \"nom\": \"Doe\",\n    \"prenom\": \"John\",\n    \"telephone\": \"0123456789\",\n    \"adresse\": \"123 rue Example\",\n    \"codePostal\": \"75000\",\n    \"ville\": \"Paris\",\n    \"pays\": \"France\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/signup",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "auth", "signup"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Factures",
+			"item": [
+				{
+					"name": "Get Factures by User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/factures/user/{{userId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "factures", "user", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Facture by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/factures/{{factureId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "factures", "{{factureId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Facture by Numero",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/factures/numero/{{numero}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "factures", "numero", "{{numero}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Facture",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"numero\": \"FACT-2024-001\",\n    \"montantHT\": 100.00,\n    \"montantTTC\": 120.00,\n    \"dateEmission\": \"2024-03-19\",\n    \"dateEcheance\": \"2024-04-19\",\n    \"statut\": \"EN_ATTENTE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/factures/user/{{userId}}/transaction/{{transactionId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "factures", "user", "{{userId}}", "transaction", "{{transactionId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Factures by Periode",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/factures/periode?debut=2024-01-01&fin=2024-12-31",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "factures", "periode"],
+							"query": [
+								{
+									"key": "debut",
+									"value": "2024-01-01"
+								},
+								{
+									"key": "fin",
+									"value": "2024-12-31"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Get Transactions by User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/transactions/user/{{userId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "transactions", "user", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"montant\": 100.00,\n    \"description\": \"Paiement abonnement\",\n    \"methodePaiementId\": \"{{methodePaiementId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/transactions/user/{{userId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "transactions", "user", "{{userId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Abonnements",
+			"item": [
+				{
+					"name": "Get Abonnements by User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/abonnements/user/{{userId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "abonnements", "user", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Abonnement",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\": \"{{planId}}\",\n    \"dateDebut\": \"2024-03-19\",\n    \"dateFin\": \"2025-03-19\",\n    \"methodePaiementId\": \"{{methodePaiementId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/abonnements/user/{{userId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "abonnements", "user", "{{userId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Methodes de Paiement",
+			"item": [
+				{
+					"name": "Get Methodes by User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/methodes-paiement/user/{{userId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "methodes-paiement", "user", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "Add Methode Paiement",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"CARTE\",\n    \"numero\": \"4242424242424242\",\n    \"dateExpiration\": \"12/25\",\n    \"titulaire\": \"John Doe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/methodes-paiement/user/{{userId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "methodes-paiement", "user", "{{userId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Plans",
+			"item": [
+				{
+					"name": "Get All Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/plans",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "plans"]
+						}
+					}
+				},
+				{
+					"name": "Get Plan by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/plans/{{planId}}",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "plans", "{{planId}}"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "votre_token_jwt"
+		},
+		{
+			"key": "userId",
+			"value": "1"
+		},
+		{
+			"key": "factureId",
+			"value": "1"
+		},
+		{
+			"key": "transactionId",
+			"value": "1"
+		},
+		{
+			"key": "planId",
+			"value": "1"
+		},
+		{
+			"key": "methodePaiementId",
+			"value": "1"
+		}
+	]
+} 

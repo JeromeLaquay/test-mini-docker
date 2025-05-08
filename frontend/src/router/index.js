@@ -12,7 +12,7 @@ import PaymentView from '../views/PaymentView.vue'
 import AdminView from '../views/AdminView.vue'
 import UserManagementView from '../views/UserManagementView.vue'
 import SubscriptionView from '../views/SubscriptionView.vue'
-
+import PlanView from '../views/PlanView.vue'
 const routes = [
   // Routes publiques
   {
@@ -77,6 +77,18 @@ const routes = [
     path: '/subscriptions',
     name: 'subscriptions',
     component: SubscriptionView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/plans',
+    name: 'plans',
+    component: PlanView,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/plan-selected',
+    name: 'PlanSelected',
+    component: () => import('../views/PlanSelected.vue'),
     meta: { requiresAuth: true }
   }
 ]

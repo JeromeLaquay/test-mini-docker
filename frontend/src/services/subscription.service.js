@@ -1,51 +1,63 @@
-import axios from 'axios';
-import authHeader from './auth-header';
-
-const API_URL = 'http://localhost:8082/api';
+import api from './api';
 
 class SubscriptionService {
+  async getAll() {
+    return api.get(`/api/abonnements`);
+  }
+
+  async get(id) {
+    return api.get(`/api/abonnements/${id}`);
+  }
+
+  async subscribe(planId) {
+    return api.post(`/api/abonnements/subscribe`, { planId });
+  }
+
+  async cancel() {
+    return api.post(`/api/abonnements/cancel`, {});
+  }
+
   // Récupérer tous les plans d'abonnement disponibles
   getPlans() {
-    return axios.get(`${API_URL}/plans`, { headers: authHeader() });
+    return api.get(`/api/abonnements/plans`);
   }
 
   // Récupérer l'abonnement actuel de l'utilisateur
   getCurrentSubscription(userId) {
-    //return axios.get(`${API_URL}/subscriptions/current`, { headers: authHeader() });
-    //return axios.get(`${API_URL}/subscriptions/user/${userId}`, { headers: authHeader() });
-    console.log("Récupérer l'abonnement actuel de l'utilisateur"+userId);
-    return {
-      status: 200,
-      message: "Abonnement actuel récupéré avec succès"
-    }
-  }
-
-  // S'abonner à un plan
-  subscribe(planId) {
-    //return axios.post(`${API_URL}/subscriptions`, { planId }, { headers: authHeader() });
-    console.log("S'abonner à un plan"+planId);
-    return {
-      status: 200,
-      message: "Abonnement souscrit avec succès"
-    }
-  }
-
-  // Annuler l'abonnement actuel
-  cancelSubscription() {
-    //return axios.delete(`${API_URL}/subscriptions/current`, { headers: authHeader() });
-    return {
-      status: 200,
-      message: "Abonnement annulé avec succès"
-    }
+    return api.get(`/api/abonnements/current/${userId}`);
   }
 
   // Récupérer l'historique des paiements
   getPaymentHistory() {
-    //return axios.get(`${API_URL}/subscriptions/history`, { headers: authHeader() });
-    return {
-      status: 200,
-      message: "Historique des paiements récupéré avec succès"
-    }
+    return api.get(`/api/abonnements/payment-history`);
+  }
+
+  getAbonnementsByUser(userId) {
+    return api.get(`/api/abonnements/user/${userId}`);
+  }
+
+  createAbonnement(abonnementData) {
+    return api.post(`/api/abonnements`, abonnementData);
+  }
+
+  updateAbonnement(id, abonnementData) {
+    return api.put(`/api/abonnements/${id}`, abonnementData);
+  }
+
+  cancelAbonnement(id) {
+    return api.put(`/api/abonnements/${id}/cancel`, {});
+  }
+
+  suspendAbonnement(id) {
+    return api.put(`/api/abonnements/${id}/suspend`, {});
+  }
+
+  reactivateAbonnement(id) {
+    return api.put(`/api/abonnements/${id}/reactivate`, {});
+  }
+
+  getAbonnementsByStatus(status) {
+    return api.get(`/api/abonnements/status/${status}`);
   }
 }
 

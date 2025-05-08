@@ -17,22 +17,24 @@
               <label for="username" class="sr-only">Nom d'utilisateur</label>
               <input
                 id="username"
-                v-model="user.username"
+                v-model="username"
                 type="text"
                 required
                 class="appearance-none rounded-t-md relative block w-full px-3 py-2 border border-white/20 bg-black/40 placeholder-white/50 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
                 placeholder="Nom d'utilisateur"
+                :disabled="loading"
               />
             </div>
             <div>
               <label for="password" class="sr-only">Mot de passe</label>
               <input
                 id="password"
-                v-model="user.password"
+                v-model="password"
                 type="password"
                 required
                 class="appearance-none rounded-b-md relative block w-full px-3 py-2 border border-white/20 bg-black/40 placeholder-white/50 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
                 placeholder="Mot de passe"
+                :disabled="loading"
               />
             </div>
           </div>
@@ -50,8 +52,8 @@
             </button>
           </div>
 
-          <div v-if="message" class="mt-4 p-4 rounded-md" :class="successful ? 'bg-green-500/20 text-green-200 border border-green-500/30' : 'bg-red-500/20 text-red-200 border border-red-500/30'">
-            {{ message }}
+          <div v-if="error" class="mt-4 p-4 rounded-md bg-red-500/20 text-red-200 border border-red-500/30">
+            {{ error }}
           </div>
 
           <div class="text-center mt-4">
@@ -76,44 +78,52 @@ export default {
   name: 'LoginView',
   data() {
     return {
-      user: {
-        username: '',
-        password: ''
-      },
+      username: '',
+      password: '',
       loading: false,
-      message: '',
-      successful: false
+      error: null
     };
   },
-  computed: {
-    loggedIn() {
-      return this.$store.state.auth.status.loggedIn;
-    }
-  },
-  created() {
-    if (this.loggedIn) {
-      this.$router.push('/profile');
-    }
-  },
   methods: {
-    handleLogin() {
+    async handleLogin() {
       this.loading = true;
-      this.message = '';
-      this.$store.dispatch('auth/signin', this.user).then(
-        () => {
-          this.successful = true;
-          this.message = 'Connexion réussie !';
-          this.$router.push('/home');
-        },
-        error => {
-          this.successful = false;
-          this.message = (error.response && error.response.data && error.response.data.message) ||
-            error.message ||
-            error.toString();
+      this.error = null;
+
+      try {
+        console.log('Tentative de connexion avec:', { username: this.username }); // Debug
+
+        const response = await this.$store.dispatch('auth/login', {
+          username: this.username,
+          password: this.password
+        });
+
+        console.log('Réponse connexion:', response); // Debug
+
+        // Vérification immédiate
+        const storedUser = localStorage.getItem('user');
+        console.log('User stocké après connexion:', storedUser); // Debug
+
+        if (!storedUser) {
+          throw new Error('Utilisateur non stocké après connexion');
         }
-      ).finally(() => {
+
+        // Vérification du token
+        const userData = JSON.parse(storedUser);
+        if (!userData.token) {
+          throw new Error('Token manquant dans les données utilisateur');
+        }
+
+        // Redirection
+        const redirectPath = localStorage.getItem('redirectAfterLogin') || '/profile';
+        localStorage.removeItem('redirectAfterLogin');
+        this.$router.push(redirectPath);
+
+      } catch (error) {
+        console.error('Erreur lors de la connexion:', error);
+        this.error = error.response?.data?.message || 'Erreur lors de la connexion';
+      } finally {
         this.loading = false;
-      });
+      }
     }
   }
 };
